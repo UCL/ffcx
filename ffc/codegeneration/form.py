@@ -145,8 +145,14 @@ class UFCForm:
             code += "ufc_dofmap* create_{name}(void);\n".format(name=name)
         return code
 
-    # This group of functions are repeated for each
-    # foo_integral by add_ufc_form_integral_methods:
+    def cell_integral_ids(self, L, ir):
+        print(ir["has_cell_integrals"])
+        code = L.Return(-1)
+        return code
+
+
+    # This group of functions are repeated for each foo_integral by
+    # add_ufc_form_integral_methods:
 
     def _max_foo_subdomain_id(self, L, ir, parameters, integral_type, declname):
         """Return implementation of ufc::form::%(declname)s()."""
@@ -217,6 +223,8 @@ def ufc_form_generator(ir, parameters):
     d["finite_element_declaration"] = generator.finite_element_declaration(L, ir)
     d["create_dofmap"] = generator.create_dofmap(L, ir)
     d["dofmap_declaration"] = generator.dofmap_declaration(L, ir)
+
+    d["cell_integral_ids"] = generator.cell_integral_ids(L, ir)
 
     d["create_cell_integral"] = generator.create_cell_integral(L, ir, parameters)
     d["create_interior_facet_integral"] = generator.create_interior_facet_integral(

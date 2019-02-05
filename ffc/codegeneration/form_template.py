@@ -46,6 +46,11 @@ ufc_dofmap* create_dofmap_{factory_name}(int i)
 {create_dofmap}
 }}
 
+int cell_integral_ids_{factory_name}(int** ids, int& num_ids)
+{{
+  {cell_integral_ids}
+}}
+
 ufc_cell_integral* create_cell_integral_{factory_name}(int subdomain_id)
 {{
   {create_cell_integral}
@@ -109,6 +114,8 @@ ufc_form* create_{factory_name}(void)
   form->create_coordinate_mapping = create_coordinate_mapping_{factory_name};
   form->create_finite_element = create_finite_element_{factory_name};
   form->create_dofmap = create_dofmap_{factory_name};
+
+  form->cell_integral_ids = cell_integral_ids_{factory_name};
 
   form->max_cell_subdomain_id = {max_cell_subdomain_id};
   form->max_exterior_facet_subdomain_id = {max_exterior_facet_subdomain_id};

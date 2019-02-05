@@ -70,8 +70,9 @@ def make_all_element_classnames(prefix, elements, coordinate_elements, parameter
         tag = ""
 
     classnames = {
-        "finite_element": {e: make_finite_element_jit_classname(e, tag, parameters)
-                           for e in elements},
+        "finite_element":
+        {e: make_finite_element_jit_classname(e, tag, parameters)
+         for e in elements},
         "dofmap": {e: make_dofmap_jit_classname(e, tag, parameters)
                    for e in elements},
         "coordinate_mapping":
@@ -144,8 +145,8 @@ def compute_ir(analysis, prefix, parameters, jit=False):
     # Compute and flatten representation of integrals
     logger.info("Computing representation of integrals")
     irs = [
-        _compute_integral_ir(fd, form_index, prefix[0], element_numbers, classnames, parameters, jit)
-        for (form_index, fd) in enumerate(form_datas)
+        _compute_integral_ir(fd, form_index, prefix[0], element_numbers, classnames, parameters,
+                             jit) for (form_index, fd) in enumerate(form_datas)
     ]
     ir_integrals = list(itertools.chain(*irs))
 
@@ -541,9 +542,15 @@ def _compute_form_ir(form_data, form_id, prefix, element_numbers, classnames, pa
         for e in form_data.argument_elements + form_data.coefficient_elements
     ]
 
-    # Create integral ids and names using form prefix
-    # (integrals are always generated as part of form so don't get
-    # their own prefix)
+    # DEBUG
+    print("*** Integral data size:   ", len(form_data.integral_data))
+    print("*** Integral data[0] type:", type(form_data.integral_data[0]))
+    for itg in form_data.integral_data:
+        print("  *** Integral data domain, itg.subdomain_id:", itg.domain, itg.subdomain_id,
+              itg.integral_type)
+
+    # Create integral ids and names using form prefix (integrals are
+    # always generated as part of form so don't get their own prefix)
     for integral_type in ufc_integral_types:
         ir["max_%s_subdomain_id" % integral_type] = \
             form_data.max_subdomain_ids.get(integral_type, 0)

@@ -188,6 +188,7 @@ ufc_dofmap* (*create_coordinate_dofmap)(void);
 ufc_coordinate_mapping* (*create_coordinate_mapping)(void);
 ufc_finite_element* (*create_finite_element)(int i);
 ufc_dofmap* (*create_dofmap)(int i);
+int (*cell_integral_ids)(int** ids, int& num_ids);
 int max_cell_subdomain_id;
 int max_exterior_facet_subdomain_id;
 int max_interior_facet_subdomain_id;

@@ -15,9 +15,11 @@
 #define UFC_VERSION_RELEASE 0
 
 #if UFC_VERSION_RELEASE
-#define UFC_VERSION UFC_VERSION_MAJOR "." UFC_VERSION_MINOR "." UFC_VERSION_MAINTENANCE
+#define UFC_VERSION                                                            \
+  UFC_VERSION_MAJOR "." UFC_VERSION_MINOR "." UFC_VERSION_MAINTENANCE
 #else
-#define UFC_VERSION UFC_VERSION_MAJOR "." UFC_VERSION_MINOR "." UFC_VERSION_MAINTENANCE ".dev0"
+#define UFC_VERSION                                                            \
+  UFC_VERSION_MAJOR "." UFC_VERSION_MINOR "." UFC_VERSION_MAINTENANCE ".dev0"
 #endif
 
 #include <stdbool.h>
@@ -34,8 +36,8 @@ extern "C"
 #define restrict __restrict__
 #else
 #define restrict
-#endif  // restrict
-#endif  // __cplusplus
+#endif // restrict
+#endif // __cplusplus
 
   typedef enum
   {
@@ -111,10 +113,10 @@ extern "C"
     /// been evaluated at points given by
     /// tabulate_reference_dof_coordinates.
     int (*transform_values)(ufc_scalar_t* restrict reference_values,
-                             const ufc_scalar_t* restrict physical_values,
-                             const double* restrict coordinate_dofs,
-                             int cell_orientation,
-                             const ufc_coordinate_mapping* cm);
+                            const ufc_scalar_t* restrict physical_values,
+                            const double* restrict coordinate_dofs,
+                            int cell_orientation,
+                            const ufc_coordinate_mapping* cm);
 
     // FIXME: change to 'const double* reference_dof_coordinates()'
     /// Tabulate the coordinates of all dofs on a reference cell
@@ -156,7 +158,8 @@ extern "C"
     /// Calculate dof permutation for given global vertex index ordering
     /// perm[num_element_dofs] - integer permutation
     /// global_indices[num_vertices_per_cell] - global indices of cell vertices
-    void (*tabulate_dof_permutations)(int* restrict perm, const int64_t* restrict global_indices);
+    void (*tabulate_dof_permutations)(int* restrict perm,
+                                      const int64_t* restrict global_indices);
 
     /// Tabulate the local-to-local mapping of dofs on entity (d, i)
     void (*tabulate_entity_dofs)(int* restrict dofs, int d, int i);
@@ -498,33 +501,47 @@ extern "C"
     ///
     ufc_dofmap* (*create_dofmap)(int i);
 
+    /// Return map from integral index (0, 1, 2, . . ., n-1), to user
+    /// markers (default, 3, 8, 2, . . .) and number of integrals (n)
+    int (*cell_integral_ids)(int** ids, int& num_ids);
+
+    // TODO: remove
     /// Upper bound on subdomain ids for cell integrals
     int max_cell_subdomain_id;
 
+    // TODO: remove
     /// Upper bound on subdomain ids for exterior facet integrals
     int max_exterior_facet_subdomain_id;
 
+    // TODO: remove
     /// Upper bound on subdomain ids for interior facet integrals
     int max_interior_facet_subdomain_id;
 
+    // TODO: remove
     /// Upper bound on subdomain ids for vertex integrals
     int max_vertex_subdomain_id;
 
+    // TODO: remove
     /// Upper bound on subdomain ids for custom integrals
     int max_custom_subdomain_id;
 
+    // TODO: remove
     /// Whether form has any cell integrals
     bool has_cell_integrals;
 
+    // TODO: remove
     /// Whether form has any exterior facet integrals
     bool has_exterior_facet_integrals;
 
+    // TODO: remove
     /// Whether form has any interior facet integrals
     bool has_interior_facet_integrals;
 
+    // TODO: remove
     /// Whether form has any vertex integrals
     bool has_vertex_integrals;
 
+    // TODO: remove
     /// Whether form has any custom integrals
     bool has_custom_integrals;
 
@@ -549,10 +566,12 @@ extern "C"
     ufc_cell_integral* (*create_default_cell_integral)(void);
 
     /// Create a new exterior facet integral on everywhere else
-    ufc_exterior_facet_integral* (*create_default_exterior_facet_integral)(void);
+    ufc_exterior_facet_integral* (*create_default_exterior_facet_integral)(
+        void);
 
     /// Create a new interior facet integral on everywhere else
-    ufc_interior_facet_integral* (*create_default_interior_facet_integral)(void);
+    ufc_interior_facet_integral* (*create_default_interior_facet_integral)(
+        void);
 
     /// Create a new vertex integral on everywhere else
     ufc_vertex_integral* (*create_default_vertex_integral)(void);
@@ -560,7 +579,6 @@ extern "C"
     /// Create a new custom integral on everywhere else
     ufc_custom_integral* (*create_default_custom_integral)(void);
   } ufc_form;
-
 
   // FIXME: Formalise a UFC 'function space'.
   typedef struct dolfin_function_space
