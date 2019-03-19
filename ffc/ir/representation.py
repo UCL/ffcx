@@ -166,6 +166,31 @@ def _compute_element_ir(ufl_element, element_numbers, classnames, parameters):
     return ir
 
 
+def _compute_dofmap_positions(fiat_element, cell):
+
+    if isinstance(fiat_element, MixedElement):
+        elements = fiat_element.elements()
+    else:
+        elements = (fiat_element, )
+
+    td = cell.topological_dimension()
+    celltype = cell.cellname()
+    ufc_cell = FIAT.reference_element.ufc_cell(celltype)
+    print(td, ufc_cell, celltype)
+
+    for element in elements:
+        nd = _num_dofs_per_entity(element)
+        ed = element.entity_dofs()
+        print(nd, ed)
+        d = element.degree()
+        print("d = ", d)
+
+        for i, ids in enumerate(FIAT.reference_element.lattice_iter(0, d + 1, 2)):
+            print (i, ids)
+
+
+    return (elements, cell)
+
 def _compute_dofmap_permutation_tables(fiat_element, cell):
     """Create tables of edge permutations and facet permutations for all the possible
     orientations of the cell."""
@@ -263,6 +288,7 @@ def _compute_dofmap_ir(ufl_element, element_numbers, classnames, parameters):
     ir["num_entity_dofs"] = num_dofs_per_entity
     ir["num_entity_closure_dofs"] = num_dofs_per_entity_closure
     ir["dof_permutations"] = (edge_permutations, face_permutations, cell, cell_topology)
+    ir["dof_positions"] = _compute_dofmap_positions(fiat_element, cell)
     ir["tabulate_entity_dofs"] = (entity_dofs, num_dofs_per_entity)
     ir["tabulate_entity_closure_dofs"] = (entity_closure_dofs, entity_dofs, num_dofs_per_entity)
     ir["num_sub_dofmaps"] = ufl_element.num_sub_elements()

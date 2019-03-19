@@ -126,6 +126,16 @@ def tabulate_dof_permutations(L, ir):
     return L.StatementList(code)
 
 
+def tabulate_dof_positions(L, ir):
+    dof_positions = ir['dof_positions']
+    print(dof_positions)
+    coords = L.Symbol("positions")
+    i = L.Symbol("i")
+    body = L.Assign(coords[i], 1)
+    code = [L.ForRange(i, 1, 10, body=body)]
+    return L.StatementList(code)
+
+
 def tabulate_entity_dofs(L, ir):
     entity_dofs, num_dofs_per_entity = ir["tabulate_entity_dofs"]
 
@@ -237,6 +247,7 @@ def ufc_dofmap_generator(ir, parameters):
 
     # Functions
     d["tabulate_dof_permutations"] = tabulate_dof_permutations(L, ir)
+    d["tabulate_dof_positions"] = tabulate_dof_positions(L, ir)
     d["tabulate_entity_dofs"] = tabulate_entity_dofs(L, ir)
     d["tabulate_entity_closure_dofs"] = tabulate_entity_closure_dofs(L, ir)
     d["sub_dofmap_declaration"] = sub_dofmap_declaration(L, ir)
