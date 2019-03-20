@@ -16,7 +16,7 @@ void tabulate_dof_permutations_{factory_name}(int* restrict perm, const int64_t*
 {tabulate_dof_permutations}
 }}
 
-void tabulate_dof_positions_{factory_name}(int* restrict coords)
+void tabulate_dof_positions_{factory_name}(int* restrict positions)
 {{
 {tabulate_dof_positions}
 }}

@@ -127,12 +127,13 @@ def tabulate_dof_permutations(L, ir):
 
 
 def tabulate_dof_positions(L, ir):
-    dof_positions = ir['dof_positions']
+    dof_positions = list(ir['dof_positions'].values())[0]
     print(dof_positions)
+    dof_positions = dof_positions.flatten()
     coords = L.Symbol("positions")
-    i = L.Symbol("i")
-    body = L.Assign(coords[i], 1)
-    code = [L.ForRange(i, 1, 10, body=body)]
+    code = []
+    for i, p in enumerate(dof_positions):
+        code += [L.Assign(coords[i], p)]
     return L.StatementList(code)
 
 

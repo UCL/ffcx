@@ -29,6 +29,7 @@ from ffc import classname
 from ffc.fiatinterface import (EnrichedElement, MixedElement, FlattenedDimensions,
                                QuadratureElement, SpaceOfReals, create_element)
 from FIAT.hdiv_trace import HDivTrace
+from FIAT.lagrange import Lagrange
 
 logger = logging.getLogger(__name__)
 
@@ -173,23 +174,48 @@ def _compute_dofmap_positions(fiat_element, cell):
     else:
         elements = (fiat_element, )
 
-    td = cell.topological_dimension()
+    # Pretty similar to FIAT.reference_element.make_lattice
+    def make_lattice(verts, n, interior=0):
+        vs = numpy.array(verts)
+        if (len(vs) == 1):
+            return [tuple(n*vs[0])]
+        hs = (vs - vs[0])[1:, :]
+        m = hs.shape[0]
+        result = [tuple(n*vs[0] + numpy.array(indices).dot(hs))
+                  for indices in FIAT.reference_element.lattice_iter(interior,
+                                                                     n + 1 - interior, m)]
+        return result
+
     celltype = cell.cellname()
     ufc_cell = FIAT.reference_element.ufc_cell(celltype)
-    print(td, ufc_cell, celltype)
 
-    for element in elements:
-        nd = _num_dofs_per_entity(element)
-        ed = element.entity_dofs()
-        print(nd, ed)
-        d = element.degree()
-        print("d = ", d)
+    # Create corner vertices of simplex
+    sd = ufc_cell.get_spatial_dimension()
+    vertices = numpy.zeros((sd + 1, sd), dtype=int)
+    for d in range(0, sd):
+        vertices[d + 1, d] = 1
 
-        for i, ids in enumerate(FIAT.reference_element.lattice_iter(0, d + 1, 2)):
-            print (i, ids)
+    # Generate points in the correct order (Lagrange elements only)
+    elpts = {}
+    topology = ufc_cell.get_topology()
+    for j, element in enumerate(elements):
+        degree = element.degree()
+        if degree == 0:
+            pts = [vertices[0]]
+        else:
+            pts = []
+            for dim in sorted(topology):
+                for entity in sorted(topology[dim]):
+                    if dim < sd:
+                        entity_verts = [vertices[ti]
+                                        for ti in ufc_cell.get_topology()[dim][entity]]
+                        pts += make_lattice(entity_verts, degree, 1)
+                    else:
+                        pts += make_lattice(vertices, degree, 1)
+        elpts[element] = numpy.array(pts)
 
-
-    return (elements, cell)
+    print(elpts)
+    return elpts
 
 def _compute_dofmap_permutation_tables(fiat_element, cell):
     """Create tables of edge permutations and facet permutations for all the possible
