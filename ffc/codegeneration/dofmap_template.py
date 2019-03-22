@@ -32,6 +32,11 @@ ufc_dofmap* create_sub_dofmap_{factory_name}(int i)
 {create_sub_dofmap}
 }}
 
+void tabulate_sub_dofmaps_{factory_name}(int *sizes, int *entries)
+{{
+{tabulate_sub_dofmaps}
+}}
+
 ufc_dofmap* create_{factory_name}(void)
 {{
   ufc_dofmap* dofmap = malloc(sizeof(*dofmap));
@@ -50,6 +55,7 @@ ufc_dofmap* create_{factory_name}(void)
   dofmap->tabulate_entity_dofs = tabulate_entity_dofs_{factory_name};
   dofmap->tabulate_entity_closure_dofs = tabulate_entity_closure_dofs_{factory_name};
   dofmap->num_sub_dofmaps = {num_sub_dofmaps};
+  dofmap->tabulate_sub_dofmaps = tabulate_sub_dofmaps_{factory_name};
   dofmap->create_sub_dofmap = create_sub_dofmap_{factory_name};
   dofmap->create = create_{factory_name};
 

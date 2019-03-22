@@ -12,6 +12,10 @@ import ffc.codegeneration.dofmap_template as ufc_dofmap
 from ffc.codegeneration.utils import generate_return_new_switch
 
 
+def tabulate_sub_dofmaps(L, ir):
+    code = [L.Comment("Test")]
+    return L.StatementList(code)
+
 def tabulate_dof_permutations(L, ir):
     """Generate code for a permutation vector for the dofmap, depending on the cell orientation, as
     determined by its global vertex indices. For triangles and quads, this requires reversing the
@@ -237,6 +241,7 @@ def ufc_dofmap_generator(ir, parameters):
 
     # Functions
     d["tabulate_dof_permutations"] = tabulate_dof_permutations(L, ir)
+    d["tabulate_sub_dofmaps"] = tabulate_sub_dofmaps(L, ir)
     d["tabulate_entity_dofs"] = tabulate_entity_dofs(L, ir)
     d["tabulate_entity_closure_dofs"] = tabulate_entity_closure_dofs(L, ir)
     d["sub_dofmap_declaration"] = sub_dofmap_declaration(L, ir)
