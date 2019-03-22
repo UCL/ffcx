@@ -13,7 +13,17 @@ from ffc.codegeneration.utils import generate_return_new_switch
 
 
 def tabulate_sub_dofmaps(L, ir):
-    code = [L.Comment("Test")]
+    sub_dofmap_space_dim = ir["tabulate_sub_dofmaps"]
+    code = [L.Comment("Tabulating the size of each subdofmap, and the dofs")]
+    sizes = L.Symbol("sizes")
+
+    for i, ndofs in enumerate(sub_dofmap_space_dim):
+        code += [L.Assign(sizes[i], ndofs)]
+
+    entries = L.Symbol("entries")
+    for j in range(sum(sub_dofmap_space_dim)):
+        code += [L.Assign(entries[j], j)]
+
     return L.StatementList(code)
 
 def tabulate_dof_permutations(L, ir):

@@ -238,6 +238,11 @@ def _compute_dofmap_ir(ufl_element, element_numbers, classnames, parameters):
     fiat_element = create_element(ufl_element)
     cell = ufl_element.cell()
 
+    sub_element_space_dimensions = []
+    if isinstance(fiat_element, MixedElement):
+        for el in fiat_element.elements():
+            sub_element_space_dimensions += [el.space_dimension()]
+
     # Precompute repeatedly used items
     num_dofs_per_entity = _num_dofs_per_entity(fiat_element)
     entity_dofs = fiat_element.entity_dofs()
@@ -266,6 +271,7 @@ def _compute_dofmap_ir(ufl_element, element_numbers, classnames, parameters):
     ir["tabulate_entity_dofs"] = (entity_dofs, num_dofs_per_entity)
     ir["tabulate_entity_closure_dofs"] = (entity_closure_dofs, entity_dofs, num_dofs_per_entity)
     ir["num_sub_dofmaps"] = ufl_element.num_sub_elements()
+    ir["tabulate_sub_dofmaps"] = sub_element_space_dimensions
     ir["create_sub_dofmap"] = [classnames["dofmap"][e] for e in ufl_element.sub_elements()]
 
     return ir
