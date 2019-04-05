@@ -18,6 +18,7 @@ import logging
 import os
 import pprint
 import textwrap
+from collections import namedtuple
 
 from ffc import __version__ as FFC_VERSION
 from ffc.codegeneration import __version__ as UFC_VERSION
@@ -60,14 +61,10 @@ c_extern_post = """
 """
 
 
-def format_code(code, wrapper_code, prefix, parameters):
+def format_code(code: namedtuple, wrapper_code, prefix, parameters):
     """Format given code in UFC format. Returns two strings with header and source file contents."""
 
     logger.debug("Compiler stage 5: Formatting code")
-
-    # Extract code
-    (code_finite_elements, code_dofmaps, code_coordinate_mappings, code_integrals, code_forms,
-     includes) = code
 
     # Generate code for comment at top of file
     code_h_pre = _generate_comment(parameters) + "\n"
@@ -83,7 +80,7 @@ def format_code(code, wrapper_code, prefix, parameters):
     code_c_pre += scalar_type
 
     # Generate includes and add to preamble
-    includes_h, includes_c = _generate_includes(includes, parameters)
+    includes_h, includes_c = _generate_includes(parameters)
     code_h_pre += includes_h
     code_c_pre += includes_c
 
@@ -92,24 +89,24 @@ def format_code(code, wrapper_code, prefix, parameters):
     code_h_post = c_extern_post
 
     # Add code for new finite_elements
-    code_h = "".join([e[0] for e in code_finite_elements])
-    code_c = "".join([e[1] for e in code_finite_elements])
+    code_h = "".join([e[0] for e in code.elements])
+    code_c = "".join([e[1] for e in code.elements])
 
     # Add code for dofmaps
-    code_h += "".join([e[0] for e in code_dofmaps])
-    code_c += "".join([e[1] for e in code_dofmaps])
+    code_h += "".join([e[0] for e in code.dofmaps])
+    code_c += "".join([e[1] for e in code.dofmaps])
 
     # Add code for code_coordinate mappings
-    code_h += "".join([c[0] for c in code_coordinate_mappings])
-    code_c += "".join([c[1] for c in code_coordinate_mappings])
+    code_h += "".join([c[0] for c in code.coordinate_mappings])
+    code_c += "".join([c[1] for c in code.coordinate_mappings])
 
     # Add code for integrals
-    code_h += "".join([integral[0] for integral in code_integrals])
-    code_c += "".join([integral[1] for integral in code_integrals])
+    code_h += "".join([integral[0] for integral in code.integrals])
+    code_c += "".join([integral[1] for integral in code.integrals])
 
     # Add code for form
-    code_h += "".join([form[0] for form in code_forms])
-    code_c += "".join([form[1] for form in code_forms])
+    code_h += "".join([form[0] for form in code.forms])
+    code_c += "".join([form[1] for form in code.forms])
 
     # Add wrappers
     if wrapper_code:
@@ -145,14 +142,7 @@ def _generate_comment(parameters):
     parameters = compilation_relevant_parameters(parameters)
 
     # Generate top level comment
-    if parameters["format"] == "ufc":
-        comment = FORMAT_TEMPLATE["ufc comment"].format(
-            ffc_version=FFC_VERSION, ufc_version=UFC_VERSION)
-    elif parameters["format"] == "dolfin":
-        comment = FORMAT_TEMPLATE["dolfin comment"].format(
-            ffc_version=FFC_VERSION, ufc_version=UFC_VERSION)
-    else:
-        raise RuntimeError("Unable to format code, unknown format \"{}\".".format(parameters["format"]))
+    comment = FORMAT_TEMPLATE["ufc comment"].format(ffc_version=FFC_VERSION, ufc_version=UFC_VERSION)
 
     # Add parameter information
     comment += "//\n"
@@ -164,7 +154,7 @@ def _generate_comment(parameters):
     return comment
 
 
-def _generate_includes(includes, parameters):
+def _generate_includes(parameters):
 
     default_h_includes = [
         "#include <ufc.h>",
@@ -182,7 +172,7 @@ def _generate_includes(includes, parameters):
     # external_includes = set(
     #     "#include <%s>" % inc for inc in parameters.get("external_includes", ()))
 
-    s_h = set(default_h_includes) | includes
+    s_h = set(default_h_includes)
     s_c = set(default_c_includes)
 
     # s2 = external_includes - s
